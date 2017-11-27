@@ -54,7 +54,9 @@ export default class UPCScanner extends React.Component {
   }
 }
 
-// Product Description
+/*
+ * Product Description Component
+ */
 function ProductDescription(props) {
   if (!props.item) {
     return null;
