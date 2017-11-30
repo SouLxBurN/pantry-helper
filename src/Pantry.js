@@ -7,12 +7,12 @@ export default class Pantry extends React.Component {
     this.state = {
       pantryItems:
         [{
-          name: '1 Gallon 2% Milk',
+          name: '2% Milk 1 Gallon',
           description: '1 Gallon of 2% Fat Dairy Milk.',
           quantity: '1',
         },
         {
-          name: '12 Pack Jumbo Eggs',
+          name: 'Jumbo Eggs 12Pack',
           description: '12 Pack Jumbo Free Range Chicken Eggs.',
           quantity: '1',
         },
@@ -20,6 +20,16 @@ export default class Pantry extends React.Component {
           name: 'Oreo Double Stuff',
           description: 'Crunchy chocolate cookies with a sweet cream in the middle.',
           quantity: '2',
+        },
+        {
+          name: 'Mountain Dew 12Pack',
+          description: 'Carbonated soft drink brand produced and owned by PepsiCo.',
+          quantity: '2',
+        },
+        {
+          name: 'Pepsi 12Pack',
+          description: 'Carbonated soft drink brand produced and owned by PepsiCo.',
+          quantity: '1',
         }],
     };
     this.onUPCSubmit = this.onUPCSubmit.bind(this);
@@ -43,15 +53,19 @@ export default class Pantry extends React.Component {
 
     return (
       <div className='container'>
+        {this.state.pantryItems.length > 0 &&
+          // Render the Pantry Inventory list only if items exist.
+          <div className='row'>
+            <div className='col'>
+              <h2>Pantry</h2>
+              <PantryInventory pantryItems={this.state.pantryItems}/>
+            </div>
+          </div>
+        }
         <div className='row'>
           <div className='col'>
-            <ul className='list-group'>
-              <li className='list-group-item'><UPCScanner onSubmit={this.onUPCSubmit} /></li>
-              <li className='list-group-item'>{description}</li>
-            </ul>
-          </div>
-          <div className='col'>
-            <Inventory pantryItems={this.state.pantryItems}/>
+            <UPCScanner onSubmit={this.onUPCSubmit} />
+            {description}
           </div>
         </div>
       </div>
@@ -59,29 +73,36 @@ export default class Pantry extends React.Component {
   }
 }
 
-function Inventory(props) {
+function PantryInventory(props) {
   return (
-    <div>
-
-      <ul className='list-group'>
-        <li className='list-group-item'><h2>Your Pantry</h2></li>
+    <table className='table table-hover'>
+      <thead className='thead-light'>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
         {props.pantryItems.map((item) => {
-          return <InventoryItem key={item.name} item={item}/>
+          return <PantryInventoryItem key={item.name} item={item}/>
         })}
-      </ul>
-    </div>
+      </tbody>
+    </table>
   )
 }
 
-function InventoryItem(props) {
+/*
+ * Pantry Inventory Table Row
+ */
+function PantryInventoryItem(props) {
+  // TODO OnClick should navigate to a View Item Page
   return (
-    <li className='list-group-item'>
-      <dl className='dl-horizontal'>
-        <dt>Name</dt><dd>{props.item.name}</dd>
-        <dt>Description</dt><dd>{props.item.description}</dd>
-        <dt>Quantity</dt><dd>{props.item.quantity}</dd>
-      </dl>
-    </li>
+    <tr onClick={() => alert(props.item.name)}>
+      <td>{props.item.name}</td>
+      <td>{props.item.description}</td>
+      <td>{props.item.quantity}</td>
+    </tr>
   )
 }
 
@@ -95,12 +116,11 @@ function ProductDescription(props) {
 
   return (
     <div>
-      <h2>Product Description</h2>
-      <dl className='dl-horizontal'>
-        <dt>SKU#</dt><dd>{props.item.upc}</dd>
-        <dt>Name</dt><dd>{props.item.name}</dd>
-        <dt>Description</dt><dd>{props.item.description}</dd>
-        <dt>Quantity</dt><dd>{props.item.quantity}</dd>
+      <h2>{props.item.name}</h2>
+      <dl className='row'>
+        <dt className='col-sm-3'>SKU#</dt><dd className='col-sm-9'>{props.item.upc}</dd>
+        <dt className='col-sm-3'>Description</dt><dd className='col-sm-9'>{props.item.description}</dd>
+        <dt className='col-sm-3'>Quantity</dt><dd className='col-sm-9'>{props.item.quantity}</dd>
       </dl>
     </div>
   )

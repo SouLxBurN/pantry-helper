@@ -8,7 +8,7 @@ function Navigation(props) {
   return (
     <nav className='navbar navbar-expand-lg navbar-light bg-light'>
       <Link className='navbar-brand' to="/">
-        <img alt='Pantry Helper Logo' src='/favicon.ico' className='d-inline-block align-top' width='30' height='30'/>
+        <img alt='Pantry Helper Logo' src='/ph-logo.gif' className='d-inline-block align-top' width='30' height='30'/>
         Pantry Helper
       </Link>
       <button className='navbar-toggler' type='button' data-toggle='collapse' data-target='#navbarSupportedContent'
