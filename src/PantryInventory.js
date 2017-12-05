@@ -39,8 +39,10 @@ class PantryInventory extends React.Component {
 export const ALL_PANTRY_ITEMS_QUERY = gql`
   query AllPantryItemsQuery {
     allPantryItems {
+      id
       qty
       item {
+        id
         name
       }
     }

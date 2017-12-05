@@ -2,6 +2,7 @@ import React from 'react'
 import { graphql, compose } from 'react-apollo'
 import gql from 'graphql-tag'
 
+import { ALL_PANTRY_ITEMS_QUERY } from './PantryInventory'
 import ListSelect from './ListSelect'
 
 class CreatePantryItem extends React.Component {
@@ -12,29 +13,46 @@ class CreatePantryItem extends React.Component {
       upcInput: '',
       qty: 1,
     };
+
+    this.onNameChange = this.onNameChange.bind(this);
     this.onNameSelect = this.onNameSelect.bind(this);
   }
 
+  /*
+   * onChange for Item Name field
+   */
+  onNameChange(event) {
+    this.setState({
+      nameInput: event.target.value,
+    });
+  }
+
+  /*
+   * When name is selected from existing Items
+   */
   onNameSelect(item) {
+    console.log('Called Select!');
+    console.log(item);
     this.setState({
       nameInput: item.name,
-      itemId: item.id,
-    })
+      item: item,
+    });
   }
 
   _createPantryItem = async () => {
-    if (!this.state.itemId) {
+    let selectedItem = this.state.item;
+    // If state does no contain an item object,
+    // create a new Item with the name input.
+    console.log(this.state.item);
+    if (!selectedItem) {
       const name = this.state.nameInput;
-      console.log(name);
       await this.props.createItemMutation({
         variables: {
           name
         },
         update: (store, { data: { createItem } }) => {
           const data = store.readQuery({ query: ALL_ITEMS_QUERY })
-          this.setState({
-            itemId: createItem.id
-          })
+          selectedItem = createItem;
           data.allItems.splice(0,0,createItem)
           store.writeQuery({
             query: ALL_ITEMS_QUERY,
@@ -44,15 +62,52 @@ class CreatePantryItem extends React.Component {
       });
     }
 
-    const itemId = this.state.itemId;
-    const qty = parseInt(this.state.qty, 10);
-    await this.props.createPantryItemMutation({
-      variables: {
-        qty,
-        itemId
+    // Checking if an existing PantryItem exists,
+    // if so, we'll update the qty instead.
+    let existingPantryItem;
+    this.props.allPantryItemsQuery.allPantryItems.forEach((pantryItem) => {
+      if (pantryItem.item.id === selectedItem.id) {
+        existingPantryItem = pantryItem;
       }
+    })
+
+    // Update If PantryItem exists
+    if (existingPantryItem) {
+      let id = existingPantryItem.id;
+      let qty = existingPantryItem.qty + parseInt(this.state.qty, 10);
+      await this.props.updatePantryItemMutation({
+        variables: {
+          id,
+          qty
+        }
+      });
+    }
+    else {
+      // Create a new Pantry Item
+      let itemId = selectedItem.id;
+      let qty = parseInt(this.state.qty, 10);
+      await this.props.createPantryItemMutation({
+        variables: {
+          qty,
+          itemId
+        },
+        update: (store, { data: { createPantryItem } }) => {
+          const data = store.readQuery({ query: ALL_PANTRY_ITEMS_QUERY })
+          data.allPantryItems.push(createPantryItem);
+          store.writeQuery({
+            query: ALL_PANTRY_ITEMS_QUERY,
+            data
+          })
+        }
+      });
+    }
+
+    // Reinitialize the page's state
+    this.setState({
+      nameInput: '',
+      upcInput: '',
+      qty: 1,
     });
-    this.props.history.push(`/createpantryitem`)
   }
 
   render() {
@@ -74,12 +129,8 @@ class CreatePantryItem extends React.Component {
               <input type='text' id='upcInput' className='form-control' value={this.state.upcInput}
                   onChange={(e) => this.setState({ upcInput: e.target.value })} />
             </div>
-            <div className='form-group'>
-              <label htmlFor='nameInput'>Name</label>
-              <input type='text' id='nameInput' className='form-control' value={this.state.nameInput}
-                  onChange={(e) => this.setState({ nameInput: e.target.value })} />
-              {autoCompleteItems.length > 0 && <ListSelect items={autoCompleteItems} onSelect={this.onNameSelect}/> }
-            </div>
+            <ListSelect items={autoCompleteItems} onChange={this.onNameChange} onSelect={this.onNameSelect}
+              value={this.state.nameInput}/>
             <div className='form-group'>
               <label htmlFor='qtyInput'>Quantity</label>
               <input type='number' id='qtyInput' className='form-control' value={this.state.qty}
@@ -117,13 +168,29 @@ const CREATE_PANTRY_ITEM_MUTATION = gql`
       qty
       item {
         id
+        name
+      }
+    }
+  }
+`
+const UPDATE_PANTRY_ITEM_MUTATION = gql`
+  mutation UpdatePantryItemMutation($id: ID!, $qty: Int!) {
+    updatePantryItem(id: $id, qty: $qty) {
+      id
+      qty
+      item {
+        id
+        name
       }
     }
   }
 `
 
+
 export default compose (
   graphql(CREATE_ITEM_MUTATION, { name: 'createItemMutation' }),
   graphql(ALL_ITEMS_QUERY, { name: 'allItemsQuery' }),
-  graphql(CREATE_PANTRY_ITEM_MUTATION, { name: 'createPantryItemMutation' })
+  graphql(ALL_PANTRY_ITEMS_QUERY, { name: 'allPantryItemsQuery' }),
+  graphql(CREATE_PANTRY_ITEM_MUTATION, { name: 'createPantryItemMutation' }),
+  graphql(UPDATE_PANTRY_ITEM_MUTATION, { name: 'updatePantryItemMutation' })
 )(CreatePantryItem)
