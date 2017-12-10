@@ -1,39 +1,39 @@
 import React from 'react'
-
+import { Link } from 'react-router-dom';
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 
 class PantryInventory extends React.Component {
   render() {
-
     if (this.props.allPantryItemsQuery && this.props.allPantryItemsQuery.loading) {
-      return <div>Loading</div>
+      return <EmptyTableHeaderMessage message='Loading' />
     }
 
     if (this.props.allPantryItemsQuery && this.props.allPantryItemsQuery.error) {
-      return <div>Error</div>
+      console.log(this.props.allPantryItemsQuery.error);
+      return <EmptyTableHeaderMessage message='An Error Occured Loading You Pantry.' />
     }
 
     const pantryItems = this.props.allPantryItemsQuery.allPantryItems;
-    const inventoryItems = pantryItems.map((item) => {
-      return <PantryInventoryItem key={item.item.name} item={item}/>
+    const inventoryItems = pantryItems.map((pantryItem) => {
+      return <PantryInventoryItem key={pantryItem.item.name} pantryItem={pantryItem}/>
     })
 
     return (
-      <table className='table table-hover'>
-        <thead className='thead-light'>
-          <tr>
-            <th>Name</th>
-            <th>Quantity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inventoryItems}
-        </tbody>
-      </table>
+        <table className='table table-striped'>
+          <thead className='thead-dark'>
+            <tr>
+              <th style={{width: '90%'}}>Name</th>
+              <th style={{textAlign: 'right'}}>Quantity</th>
+              <th style={{textAlign: 'center'}}>Edit</th>
+            </tr>
+          </thead>
+          <tbody>
+            {inventoryItems}
+          </tbody>
+        </table>
     )
   }
-
 }
 
 export const ALL_PANTRY_ITEMS_QUERY = gql`
@@ -51,16 +51,32 @@ export const ALL_PANTRY_ITEMS_QUERY = gql`
 
 export default graphql(ALL_PANTRY_ITEMS_QUERY, { name: 'allPantryItemsQuery' })(PantryInventory)
 
-
 /*
  * Pantry Inventory Table Row
  */
 function PantryInventoryItem(props) {
-  // TODO OnClick should navigate to a View Item Page
   return (
-    <tr onClick={() => alert(props.item.item.name)}>
-      <td>{props.item.item.name}</td>
-      <td>{props.item.qty}</td>
-    </tr>
+      <tr>
+        <td>{props.pantryItem.item.name}</td>
+        <td style={{textAlign: 'right'}}>{props.pantryItem.qty}</td>
+        <td>
+          <Link className='btn btn-primary' to={`/editpantryitem/${props.pantryItem.id}`}>
+            Edit
+          </Link>
+        </td>
+      </tr>
+
   )
+}
+
+function EmptyTableHeaderMessage(props) {
+  return (
+    <table className='table table-striped'>
+      <thead className='thead-dark'>
+        <tr>
+          <th>{props.message}</th>
+        </tr>
+      </thead>
+    </table>
+  );
 }

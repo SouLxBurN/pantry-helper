@@ -31,19 +31,24 @@ class CreatePantryItem extends React.Component {
    * When name is selected from existing Items
    */
   onNameSelect(item) {
-    console.log('Called Select!');
-    console.log(item);
     this.setState({
       nameInput: item.name,
       item: item,
     });
   }
 
+  onFinish = () => {
+    this.props.history.push(`/`);
+  }
+
   _createPantryItem = async () => {
     let selectedItem = this.state.item;
     // If state does no contain an item object,
     // create a new Item with the name input.
-    console.log(this.state.item);
+    if (!this.state.nameInput || this.state.nameInput.length <= 0
+      || this.state.qty <= 0) {
+      return
+    }
     if (!selectedItem) {
       const name = this.state.nameInput;
       await this.props.createItemMutation({
@@ -136,7 +141,8 @@ class CreatePantryItem extends React.Component {
               <input type='number' id='qtyInput' className='form-control' value={this.state.qty}
                   onChange={(e) => this.setState({ qty: e.target.value })} />
             </div>
-            <button type='button' className='btn btn-primary' onClick={this._createPantryItem}> Add </button>
+            <button type='button' className='btn btn-primary float-left' onClick={this.onFinish}> Done </button>
+            <button type='button' className='btn btn-primary float-right' onClick={this._createPantryItem}> Add </button>
           </div>
         </div>
       </div>
@@ -173,7 +179,7 @@ const CREATE_PANTRY_ITEM_MUTATION = gql`
     }
   }
 `
-const UPDATE_PANTRY_ITEM_MUTATION = gql`
+export const UPDATE_PANTRY_ITEM_MUTATION = gql`
   mutation UpdatePantryItemMutation($id: ID!, $qty: Int!) {
     updatePantryItem(id: $id, qty: $qty) {
       id
