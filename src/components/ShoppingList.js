@@ -29,10 +29,7 @@ class ShoppingList extends React.Component {
       },
       update:  (store, { data: { updateShoppingList } }) => {
         let data = store.readQuery({ query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
-        console.log(data);
-        console.log(updateShoppingList);
         data.allShoppingLists.push(updateShoppingList);
-        console.log(data);
         store.writeQuery({
           query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
           data

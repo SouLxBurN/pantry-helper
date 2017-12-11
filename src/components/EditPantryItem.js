@@ -2,7 +2,8 @@ import React from 'react';
 import { graphql, compose } from 'react-apollo'
 import ListSelect from '../util/ListSelect'
 import { ALL_ITEMS_QUERY } from '../graphql/Itemql'
-import { UPDATE_PANTRY_ITEM_MUTATION } from '../graphql/PantryItemql'
+import { ALL_PANTRY_ITEMS_QUERY, UPDATE_PANTRY_ITEM_MUTATION } from '../graphql/PantryItemql'
+import { CREATE_SHOPPING_LIST_ITEM_MUTATION } from '../graphql/ShoppingListql'
 
 class EditPantryItem extends React.Component {
   constructor(props) {
@@ -13,7 +14,8 @@ class EditPantryItem extends React.Component {
 
   state = {
     nameInput: this.props.pantryItem.item.name,
-    qtyInput: this.props.pantryItem.qty
+    qtyInput: this.props.pantryItem.qty,
+    item: this.props.pantryItem.item,
   };
 
   /*
@@ -39,12 +41,33 @@ class EditPantryItem extends React.Component {
     if (this.state.qtyInput < 0) {
       return
     }
+    if (parseInt(this.state.qtyInput,10) === 0) {
+      console.log(this.state.qtyInput);
+      let qty = 1;
+      let itemId = this.state.item.id;
+      this.props.createShoppingListItem({
+        variables: {
+          qty,
+          itemId
+        }
+      })
+    }
     let id = this.props.pantryItem.id;
     let qty = parseInt(this.state.qtyInput,10);
     this.props.updatePantryItemMutation({
       variables: {
         id,
         qty
+      },
+      update: (store, { data: { updatePantryItem } }) => {
+        let data = store.readQuery({ query: ALL_PANTRY_ITEMS_QUERY })
+        data.allPantryItems = data.allPantryItems.filter((it) => {
+          return it.id !== updatePantryItem.id;
+        });
+        store.writeQuery({
+          query: ALL_PANTRY_ITEMS_QUERY,
+          data
+        });
       }
     }).then(this.props.onFinish());
   }
@@ -85,5 +108,6 @@ class EditPantryItem extends React.Component {
 
 export default compose (
   graphql(ALL_ITEMS_QUERY, { name: 'allItemsQuery' }),
-  graphql(UPDATE_PANTRY_ITEM_MUTATION, { name: 'updatePantryItemMutation' })
+  graphql(UPDATE_PANTRY_ITEM_MUTATION, { name: 'updatePantryItemMutation' }),
+  graphql(CREATE_SHOPPING_LIST_ITEM_MUTATION, { name: 'createShoppingListItem' })
 )(EditPantryItem)
