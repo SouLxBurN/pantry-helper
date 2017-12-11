@@ -1,8 +1,8 @@
 import React from 'react';
 import { graphql } from 'react-apollo'
-import gql from 'graphql-tag'
 import { withRouter } from 'react-router-dom'
 import EditPantryItem from './EditPantryItem'
+import { SINGLE_PANTRY_ITEM_QUERY } from '../graphql/PantryItem'
 
 class EditPantryItemPage extends React.Component {
 
@@ -24,19 +24,6 @@ class EditPantryItemPage extends React.Component {
     )
   }
 }
-
-export const SINGLE_PANTRY_ITEM_QUERY = gql`
-  query SinglePantryItemQuery($id: ID!) {
-    PantryItem(id: $id) {
-      id
-      qty
-      item {
-        id
-        name
-      }
-    }
-  }
-`
 
 const EditPantryItemPageWithQuery = graphql(SINGLE_PANTRY_ITEM_QUERY, {
   options: (ownProps) => ({

@@ -1,9 +1,16 @@
 import React from 'react'
 import { graphql, compose } from 'react-apollo'
-import gql from 'graphql-tag'
+import ListSelect from '../util/ListSelect'
+import {
+  CREATE_ITEM_MUTATION,
+  ALL_ITEMS_QUERY
+} from '../graphql/Item'
+import {
+  ALL_PANTRY_ITEMS_QUERY,
+  CREATE_PANTRY_ITEM_MUTATION,
+  UPDATE_PANTRY_ITEM_MUTATION
+} from '../graphql/PantryItem'
 
-import { ALL_PANTRY_ITEMS_QUERY } from './PantryInventory'
-import ListSelect from './ListSelect'
 
 class CreatePantryItem extends React.Component {
   constructor(props) {
@@ -49,7 +56,10 @@ class CreatePantryItem extends React.Component {
       || this.state.qty <= 0) {
       return
     }
-    if (!selectedItem) {
+
+    // If no item has been selected or the nameInput does match
+    // the selectedItem, we shall create a new Item.
+    if (!selectedItem || selectedItem.name !== this.state.nameInput) {
       const name = this.state.nameInput;
       await this.props.createItemMutation({
         variables: {
@@ -112,6 +122,7 @@ class CreatePantryItem extends React.Component {
       nameInput: '',
       upcInput: '',
       qty: 1,
+      item: null,
     });
   }
 
@@ -149,49 +160,6 @@ class CreatePantryItem extends React.Component {
     )
   }
 }
-
-const CREATE_ITEM_MUTATION = gql`
-  mutation CreateItemMutation($name: String!) {
-    createItem(name: $name) {
-      id
-      name
-      upc
-    }
-  }
-`
-export const ALL_ITEMS_QUERY = gql`
-  query AllItemsQuery {
-    allItems {
-      id
-      name
-    }
-  }
-`
-const CREATE_PANTRY_ITEM_MUTATION = gql`
-  mutation CreatePantryItemMutation($qty: Int!, $itemId: ID!) {
-    createPantryItem(qty: $qty, itemId: $itemId) {
-      id
-      qty
-      item {
-        id
-        name
-      }
-    }
-  }
-`
-export const UPDATE_PANTRY_ITEM_MUTATION = gql`
-  mutation UpdatePantryItemMutation($id: ID!, $qty: Int!) {
-    updatePantryItem(id: $id, qty: $qty) {
-      id
-      qty
-      item {
-        id
-        name
-      }
-    }
-  }
-`
-
 
 export default compose (
   graphql(CREATE_ITEM_MUTATION, { name: 'createItemMutation' }),

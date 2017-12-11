@@ -13,7 +13,7 @@ import Settings from './Settings';
 /*
  * Parent Application Component
  */
-export default class App extends React.Component {
+class App extends React.Component {
   render() {
     return (
         <div style={{paddingBottom: '50px'}}>
@@ -30,3 +30,4 @@ export default class App extends React.Component {
     )
   }
 }
+export default App

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import { graphql } from 'react-apollo'
-import gql from 'graphql-tag'
+import { ALL_PANTRY_ITEMS_QUERY } from '../graphql/PantryItem'
 
 class PantryInventory extends React.Component {
   render() {
@@ -35,19 +35,6 @@ class PantryInventory extends React.Component {
     )
   }
 }
-
-export const ALL_PANTRY_ITEMS_QUERY = gql`
-  query AllPantryItemsQuery {
-    allPantryItems {
-      id
-      qty
-      item {
-        id
-        name
-      }
-    }
-  }
-`
 
 export default graphql(ALL_PANTRY_ITEMS_QUERY, { name: 'allPantryItemsQuery' })(PantryInventory)
 
