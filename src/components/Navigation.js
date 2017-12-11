@@ -19,7 +19,7 @@ function Navigation(props) {
         <ul className='navbar-nav mr-auto'>
           <li className='nav-item'><Link className='nav-link' to="/shoppinglist">Shopping List</Link></li>
           <li className='nav-item'><Link className='nav-link' to="/recipes">Recipes</Link></li>
-          <li className='nav-item'><Link className='nav-link' to="/settings">Settings</Link></li>
+          {/* <li className='nav-item'><Link className='nav-link' to="/settings">Settings</Link></li> */}
         </ul>
       </div>
     </nav>

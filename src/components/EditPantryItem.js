@@ -2,8 +2,14 @@ import React from 'react';
 import { graphql, compose } from 'react-apollo'
 import ListSelect from '../util/ListSelect'
 import { ALL_ITEMS_QUERY } from '../graphql/Itemql'
-import { ALL_PANTRY_ITEMS_QUERY, UPDATE_PANTRY_ITEM_MUTATION } from '../graphql/PantryItemql'
-import { CREATE_SHOPPING_LIST_ITEM_MUTATION } from '../graphql/ShoppingListql'
+import {
+  ALL_PANTRY_ITEMS_QUERY,
+  UPDATE_PANTRY_ITEM_MUTATION
+} from '../graphql/PantryItemql'
+import {
+  ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
+  CREATE_SHOPPING_LIST_ITEM_MUTATION
+} from '../graphql/ShoppingListql'
 
 class EditPantryItem extends React.Component {
   constructor(props) {
@@ -49,6 +55,14 @@ class EditPantryItem extends React.Component {
         variables: {
           qty,
           itemId
+        },
+        update: (store, {data: { createShoppingList } }) => {
+          let data = store.readQuery({ query: ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
+          data.allShoppingLists.push(createShoppingList);
+          store.writeQuery({
+            query: ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
+            data
+          })
         }
       })
     }

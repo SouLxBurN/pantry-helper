@@ -7,6 +7,7 @@ import CreatePantryItem from './CreatePantryItem';
 import EditPantryItemPageWithQuery from './EditPantryItemPage';
 import ShoppingList from './ShoppingList';
 import Recipes from './Recipes';
+import { RecipePageWithQuery, RecipePage } from './RecipePage'
 import Settings from './Settings';
 
 
@@ -24,6 +25,8 @@ class App extends React.Component {
             <Route path="/editpantryitem/:id" component={EditPantryItemPageWithQuery} />
             <Route path="/shoppinglist" component={ShoppingList} />
             <Route path="/recipes" component={Recipes} />
+            <Route path="/createrecipe" component={RecipePage} />
+            <Route path="/viewRecipe/:id" component={RecipePageWithQuery} />
             <Route path="/settings" component={Settings} />
           </Switch>
         </div>

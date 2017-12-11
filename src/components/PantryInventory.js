@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom';
 import { graphql } from 'react-apollo'
 import { ALL_PANTRY_ITEMS_QUERY } from '../graphql/PantryItemql'
+import { EmptyTableHeaderMessage } from '../util/displayUtils'
 
 class PantryInventory extends React.Component {
   render() {
@@ -11,7 +12,7 @@ class PantryInventory extends React.Component {
 
     if (this.props.allPantryItemsQuery && this.props.allPantryItemsQuery.error) {
       console.log(this.props.allPantryItemsQuery.error);
-      return <EmptyTableHeaderMessage message='An Error Occured Loading You Pantry.' />
+      return <EmptyTableHeaderMessage message='An Error Occured Loading Your Pantry.' />
     }
 
     const pantryItems = this.props.allPantryItemsQuery.allPantryItems;
@@ -54,16 +55,4 @@ function PantryInventoryItem(props) {
       </tr>
 
   )
-}
-
-function EmptyTableHeaderMessage(props) {
-  return (
-    <table className='table table-striped'>
-      <thead className='thead-dark'>
-        <tr>
-          <th>{props.message}</th>
-        </tr>
-      </thead>
-    </table>
-  );
 }
