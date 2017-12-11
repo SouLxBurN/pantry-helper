@@ -2,7 +2,7 @@ import gql from 'graphql-tag'
 
 // Queries
 export const ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY = gql`
-  query AllCompletedShoppingListItemsQuery {
+  query AllNonCompletedShoppingListItemsQuery {
     allShoppingLists(filter: {
       completed: false
     }) {

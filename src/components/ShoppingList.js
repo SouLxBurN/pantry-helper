@@ -1,24 +1,14 @@
 import React from 'react';
+import { graphql, compose } from 'react-apollo';
+import {
+  ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
+  ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
+  UPDATE_SHOPPING_LIST_ITEM_COMPLETENESS
+} from '../graphql/ShoppingListql';
 
-// Placeholder for Shopping List Page
-export default class ShoppingList extends React.Component {
+class ShoppingList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      pendingList: [{
-        name: 'Bread',
-      },
-      {
-        name: 'Mountain Dew',
-      },
-      {
-        name: 'Milk',
-      },
-      {
-        name: 'Eggs',
-      }],
-      completedList: [],
-    };
     this.onPendingClick = this.onPendingClick.bind(this);
     this.onCompletedClick = this.onCompletedClick.bind(this);
     this.handleFinished = this.handleFinished.bind(this);
@@ -28,34 +18,69 @@ export default class ShoppingList extends React.Component {
    * When a Pending Item is clicked
    * Remove it from the Pending list and into the Completed List
    */
-  onPendingClick(event, item) {
+  async onPendingClick(event, item) {
     event.preventDefault();
-    const pendingArray = this.state.pendingList.filter(function(i) {
-      return i !== item;
-    });
-    const completedArray = this.state.completedList.slice();
-    completedArray.push(item);
-    this.setState({
-      pendingList: pendingArray,
-      completedList: completedArray,
-    });
+    let id = item.id;
+    let completed = true;
+    await this.props.updateShoppingListItemComplete({
+      variables: {
+        id,
+        completed
+      },
+      update:  (store, { data: { updateShoppingList } }) => {
+        let data = store.readQuery({ query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
+        console.log(data);
+        console.log(updateShoppingList);
+        data.allShoppingLists.push(updateShoppingList);
+        console.log(data);
+        store.writeQuery({
+          query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
+          data
+        });
+
+        data = store.readQuery({ query: ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
+        data.allShoppingLists = data.allShoppingLists.filter((it) => {
+          return it.id !== updateShoppingList.id;
+        });
+        store.writeQuery({
+          query: ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
+          data
+        });
+      }
+    })
   }
 
   /*
    * When a Completed Item clicked
    * Remove it from the Completed list and into the Pending List
    */
-  onCompletedClick(event, item) {
+  async onCompletedClick(event, item) {
     event.preventDefault();
-    const completedArray = this.state.completedList.filter(function(i) {
-      return i !== item;
-    });
-    const pendingArray = this.state.pendingList.slice();
-    pendingArray.push(item);
-    this.setState({
-      pendingList: pendingArray,
-      completedList: completedArray,
-    });
+    let id = item.id;
+    let completed = false;
+    await this.props.updateShoppingListItemComplete({
+      variables: {
+        id,
+        completed
+      },
+      update:  (store, { data: { updateShoppingList } }) => {
+        let data = store.readQuery({ query: ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
+        data.allShoppingLists.push(updateShoppingList);
+        store.writeQuery({
+          query: ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
+          data
+        });
+
+        data = store.readQuery({ query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
+        data.allShoppingLists = data.allShoppingLists.filter((it) => {
+          return it.id !== updateShoppingList.id;
+        });
+        store.writeQuery({
+          query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
+          data
+        });
+      }
+    })
   }
 
   /*
@@ -64,34 +89,52 @@ export default class ShoppingList extends React.Component {
    */
   handleFinished(event) {
     event.preventDefault();
-    this.setState({
-      completedList: [],
-    });
+
   }
 
   render() {
+    if ((this.props.allCompletedShoppingListItemsQuery
+      && this.props.allCompletedShoppingListItemsQuery.loading)
+      || (this.props.allNonCompletedShoppingListItemsQuery
+        && this.props.allNonCompletedShoppingListItemsQuery.loading)) {
+      return <div>Loading</div>
+    }
+
+    if ((this.props.allCompletedShoppingListItemsQuery
+      && this.props.allCompletedShoppingListItemsQuery.error)
+      || (this.props.allNonCompletedShoppingListItemsQuery
+        && this.props.allNonCompletedShoppingListItemsQuery.error)) {
+      console.log(this.props.allNonCompletedShoppingListItemsQuery.error);
+      return <div>An Error Occured with loading your Shopping List.</div>
+    }
+
+    const pendingList = sortItems(this.props.allNonCompletedShoppingListItemsQuery.allShoppingLists);
+    const completedList = sortItems(this.props.allCompletedShoppingListItemsQuery.allShoppingLists);
+
     return (
       <div className='container'>
-        {this.state.pendingList.length > 0 &&
+        {pendingList.length > 0 &&
           // Render Shopping List only when items exist in it.
           <div className='row'>
             <div className='col'>
               <h2>Shopping List</h2>
-              <ShoppingListComponent list={this.state.pendingList} onClick={this.onPendingClick}/>
+              <ShoppingListComponent list={pendingList} onClick={this.onPendingClick}/>
             </div>
           </div>
         }
-        {this.state.completedList.length > 0 &&
+        {completedList.length > 0 &&
           // Render Completed List only when items exist in it.
           <div className='row'>
             <div className='col'>
-              <button type='button' className='btn btn-primary' onClick={this.handleFinished}>Complete Shopping</button>
               <h2>Completed List</h2>
-              <ShoppingListComponent list={this.state.completedList} onClick={this.onCompletedClick}/>
+              <ShoppingListComponent list={completedList} onClick={this.onCompletedClick}/>
+              <button type='button' className='btn btn-primary float-right' onClick={this.handleFinished}>
+                Complete Shopping
+              </button>
             </div>
           </div>
         }
-        {(this.state.pendingList.length === 0 && this.state.completedList.length === 0) &&
+        {(pendingList.length === 0 && completedList.length === 0) &&
           // Render Empty Shopping List Messages only when both lists are empty.
           <div className='row'>
             <div className='col'>
@@ -109,13 +152,34 @@ export default class ShoppingList extends React.Component {
  */
 function ShoppingListComponent(props) {
   return (
-    <div className='list-group'>
-      {props.list.map((item) => {
+    <div className='list-group pb-3'>
+      {props.list.map((listItem) => {
         return <a href='' className='list-group-item list-group-item-action'
-          key={item.name} onClick={(e) => props.onClick(e,item)}>
-           {item.name}
+          key={listItem.item.name} onClick={(e) => props.onClick(e,listItem)}>
+           <span className='float-left'>{listItem.item.name}</span>
+           <span className='float-right'>{listItem.qty}</span>
          </a>
       })}
     </div>
   )
 }
+
+function sortItems(items) {
+  let itemsCopy = items.slice().sort((a,b) => {
+    if (a.item.name < b.item.name) {
+      return -1;
+    }
+    if (a.item.name > b.item.name) {
+      return 1;
+    }
+    return 0;
+  });
+
+  return itemsCopy;
+}
+
+export default compose (
+  graphql(ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY, { name: 'allCompletedShoppingListItemsQuery' }),
+  graphql(ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY, { name: 'allNonCompletedShoppingListItemsQuery' }),
+  graphql(UPDATE_SHOPPING_LIST_ITEM_COMPLETENESS, { name: 'updateShoppingListItemComplete' })
+) (ShoppingList)
