@@ -1,8 +1,8 @@
 import React from 'react';
 import { graphql, compose } from 'react-apollo'
 import ListSelect from '../util/ListSelect'
-import { ALL_ITEMS_QUERY } from '../graphql/Item'
-import { UPDATE_PANTRY_ITEM_MUTATION } from '../graphql/PantryItem'
+import { ALL_ITEMS_QUERY } from '../graphql/Itemql'
+import { UPDATE_PANTRY_ITEM_MUTATION } from '../graphql/PantryItemql'
 
 class EditPantryItem extends React.Component {
   constructor(props) {

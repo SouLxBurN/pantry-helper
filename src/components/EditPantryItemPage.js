@@ -2,7 +2,7 @@ import React from 'react';
 import { graphql } from 'react-apollo'
 import { withRouter } from 'react-router-dom'
 import EditPantryItem from './EditPantryItem'
-import { SINGLE_PANTRY_ITEM_QUERY } from '../graphql/PantryItem'
+import { SINGLE_PANTRY_ITEM_QUERY } from '../graphql/PantryItemql'
 
 class EditPantryItemPage extends React.Component {
 

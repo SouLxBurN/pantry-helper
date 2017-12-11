@@ -4,12 +4,12 @@ import ListSelect from '../util/ListSelect'
 import {
   CREATE_ITEM_MUTATION,
   ALL_ITEMS_QUERY
-} from '../graphql/Item'
+} from '../graphql/Itemql'
 import {
   ALL_PANTRY_ITEMS_QUERY,
   CREATE_PANTRY_ITEM_MUTATION,
   UPDATE_PANTRY_ITEM_MUTATION
-} from '../graphql/PantryItem'
+} from '../graphql/PantryItemql'
 
 
 class CreatePantryItem extends React.Component {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import { graphql } from 'react-apollo'
-import { ALL_PANTRY_ITEMS_QUERY } from '../graphql/PantryItem'
+import { ALL_PANTRY_ITEMS_QUERY } from '../graphql/PantryItemql'
 
 class PantryInventory extends React.Component {
   render() {
