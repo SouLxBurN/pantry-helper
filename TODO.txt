@@ -1,0 +1,18 @@
+Major Features
+  Multiple Users & Authentication
+  Incorporate UPCs
+  Recipe Search
+  Recommend Recipes based on pantry inventory
+  Configuration/Settings for Recipes and Shopping List
+
+
+Inventory
+  Updating an item removes it from the UI.
+
+Shopping List
+  'Complete Shopping' button is not working
+    - Button should remove the items from the completed list and update the pantry inventory.
+
+Recipes
+  Updating a recipe it creating a new duplicate instead of updating the record.
+  Invent a better ingredient selector.
