@@ -47,6 +47,7 @@ class EditPantryItem extends React.Component {
     if (this.state.qtyInput < 0) {
       return
     }
+    console.log("Updating Item...")
     if (parseInt(this.state.qtyInput,10) === 0) {
       console.log(this.state.qtyInput);
       let qty = 1;
@@ -75,9 +76,12 @@ class EditPantryItem extends React.Component {
       },
       update: (store, { data: { updatePantryItem } }) => {
         let data = store.readQuery({ query: ALL_PANTRY_ITEMS_QUERY })
-        data.allPantryItems = data.allPantryItems.filter((it) => {
-          return it.id !== updatePantryItem.id;
-        });
+        // Remove item from pantry item list if the quantity was moved to zero.
+        if (updatePantryItem.qty <= 0) {
+          data.allPantryItems = data.allPantryItems.filter((it) => {
+            return it.id !== updatePantryItem.id;
+          });
+        }
         store.writeQuery({
           query: ALL_PANTRY_ITEMS_QUERY,
           data
