@@ -6,7 +6,7 @@ import {
   ALL_ITEMS_QUERY
 } from '../graphql/Itemql'
 import {
-  ALL_PANTRY_ITEMS_QUERY,
+  ALL_NON_ZERO_PANTRY_ITEMS_QUERY,
   CREATE_PANTRY_ITEM_MUTATION,
   UPDATE_PANTRY_ITEM_MUTATION
 } from '../graphql/PantryItemql'
@@ -107,10 +107,10 @@ class CreatePantryItem extends React.Component {
           itemId
         },
         update: (store, { data: { createPantryItem } }) => {
-          const data = store.readQuery({ query: ALL_PANTRY_ITEMS_QUERY })
+          const data = store.readQuery({ query: ALL_NON_ZERO_PANTRY_ITEMS_QUERY })
           data.allPantryItems.push(createPantryItem);
           store.writeQuery({
-            query: ALL_PANTRY_ITEMS_QUERY,
+            query: ALL_NON_ZERO_PANTRY_ITEMS_QUERY,
             data
           })
         }
@@ -164,7 +164,7 @@ class CreatePantryItem extends React.Component {
 export default compose (
   graphql(CREATE_ITEM_MUTATION, { name: 'createItemMutation' }),
   graphql(ALL_ITEMS_QUERY, { name: 'allItemsQuery' }),
-  graphql(ALL_PANTRY_ITEMS_QUERY, { name: 'allPantryItemsQuery' }),
+  graphql(ALL_NON_ZERO_PANTRY_ITEMS_QUERY, { name: 'allPantryItemsQuery' }),
   graphql(CREATE_PANTRY_ITEM_MUTATION, { name: 'createPantryItemMutation' }),
   graphql(UPDATE_PANTRY_ITEM_MUTATION, { name: 'updatePantryItemMutation' })
 )(CreatePantryItem)

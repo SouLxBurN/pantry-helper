@@ -15,6 +15,19 @@ export const SINGLE_PANTRY_ITEM_QUERY = gql`
 `
 export const ALL_PANTRY_ITEMS_QUERY = gql`
   query AllPantryItemsQuery {
+    allPantryItems {
+      id
+      qty
+      item {
+        id
+        name
+      }
+    }
+  }
+`
+
+export const ALL_NON_ZERO_PANTRY_ITEMS_QUERY = gql`
+  query AllPantryItemsQuery {
     allPantryItems(filter: {
       qty_gt: 0
     }) {

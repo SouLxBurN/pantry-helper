@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import { graphql } from 'react-apollo'
-import { ALL_PANTRY_ITEMS_QUERY } from '../graphql/PantryItemql'
+import { ALL_NON_ZERO_PANTRY_ITEMS_QUERY } from '../graphql/PantryItemql'
 import { EmptyTableHeaderMessage } from '../util/displayUtils'
 
 class PantryInventory extends React.Component {
@@ -37,7 +37,7 @@ class PantryInventory extends React.Component {
   }
 }
 
-export default graphql(ALL_PANTRY_ITEMS_QUERY, { name: 'allPantryItemsQuery' })(PantryInventory)
+export default graphql(ALL_NON_ZERO_PANTRY_ITEMS_QUERY, { name: 'allPantryItemsQuery' })(PantryInventory)
 
 /*
  * Pantry Inventory Table Row

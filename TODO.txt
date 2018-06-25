@@ -1,12 +1,17 @@
 Shopping List
   'Complete Shopping' button is not working
-    - Button should remove the items from the completed list and update the pantry inventory.
+    - Button should remove the items from the completed list and update the pantry inventory. (COMPLETE)
 
 Recipes
   Updating a recipe it creating a new duplicate instead of updating the record.
   Invent a better ingredient selector.
 
+Tech Debt
+  Create ApolloClientProvider as a Singleton for user around the application
+  Potentially create a 'service' for the query and mutation method calls.
+
 Major Features
+  User Feedback messages i.e. (Success and Failure messages)
   Multiple Users & Authentication
   Incorporate UPCs
   Recipe Search

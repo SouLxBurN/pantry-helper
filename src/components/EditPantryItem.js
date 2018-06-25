@@ -3,7 +3,7 @@ import { graphql, compose } from 'react-apollo'
 import ListSelect from '../util/ListSelect'
 import { ALL_ITEMS_QUERY } from '../graphql/Itemql'
 import {
-  ALL_PANTRY_ITEMS_QUERY,
+  ALL_NON_ZERO_PANTRY_ITEMS_QUERY,
   UPDATE_PANTRY_ITEM_MUTATION
 } from '../graphql/PantryItemql'
 import {
@@ -47,7 +47,6 @@ class EditPantryItem extends React.Component {
     if (this.state.qtyInput < 0) {
       return
     }
-    console.log("Updating Item...")
     if (parseInt(this.state.qtyInput,10) === 0) {
       console.log(this.state.qtyInput);
       let qty = 1;
@@ -58,12 +57,14 @@ class EditPantryItem extends React.Component {
           itemId
         },
         update: (store, {data: { createShoppingList } }) => {
-          let data = store.readQuery({ query: ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
-          data.allShoppingLists.push(createShoppingList);
-          store.writeQuery({
-            query: ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
-            data
-          })
+          try {
+            let data = store.readQuery({ query: ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
+            data.allShoppingLists.push(createShoppingList);
+            store.writeQuery({
+              query: ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
+              data
+            })
+          } catch (e) {} // Silencing the empty cache error
         }
       })
     }
@@ -75,7 +76,7 @@ class EditPantryItem extends React.Component {
         qty
       },
       update: (store, { data: { updatePantryItem } }) => {
-        let data = store.readQuery({ query: ALL_PANTRY_ITEMS_QUERY })
+        let data = store.readQuery({ query: ALL_NON_ZERO_PANTRY_ITEMS_QUERY })
         // Remove item from pantry item list if the quantity was moved to zero.
         if (updatePantryItem.qty <= 0) {
           data.allPantryItems = data.allPantryItems.filter((it) => {
@@ -83,7 +84,7 @@ class EditPantryItem extends React.Component {
           });
         }
         store.writeQuery({
-          query: ALL_PANTRY_ITEMS_QUERY,
+          query: ALL_NON_ZERO_PANTRY_ITEMS_QUERY,
           data
         });
       }

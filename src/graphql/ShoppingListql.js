@@ -59,3 +59,10 @@ export const UPDATE_SHOPPING_LIST_ITEM_COMPLETENESS = gql`
     }
   }
 `
+export const DELETE_SHOPPING_LIST_ITEM = gql`
+  mutation DeleteShoppingListItem($id: ID!) {
+    deleteShoppingList(id: $id) {
+      id
+    }
+  }
+`

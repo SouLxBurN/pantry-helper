@@ -3,9 +3,16 @@ import { graphql, compose } from 'react-apollo';
 import {
   ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
   ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
-  UPDATE_SHOPPING_LIST_ITEM_COMPLETENESS
+  UPDATE_SHOPPING_LIST_ITEM_COMPLETENESS,
+  DELETE_SHOPPING_LIST_ITEM
 } from '../graphql/ShoppingListql';
-
+import {
+  ALL_PANTRY_ITEMS_QUERY,
+  ALL_NON_ZERO_PANTRY_ITEMS_QUERY,
+  CREATE_PANTRY_ITEM_MUTATION,
+  UPDATE_PANTRY_ITEM_MUTATION
+} from '../graphql/PantryItemql';
+import { client } from '../index'
 class ShoppingList extends React.Component {
   constructor(props) {
     super(props);
@@ -84,9 +91,79 @@ class ShoppingList extends React.Component {
    * When Complete Shopping button is Clicked
    * Remove all items from completed list and add them to the pantry.
    */
-  handleFinished(event) {
+  async handleFinished(event) {
     event.preventDefault();
+    this.props.allCompletedShoppingListItemsQuery.allShoppingLists.forEach((listItem) => {
+      let matchedPantry = false
+      this.props.allPantryItemsQuery.allPantryItems.forEach((pantryItem) => {
+        // Updating if a matching PantryItem is found for the shopping list item
+        if (pantryItem.item.id === listItem.item.id) {
+          console.log("Matched Pantry Item: " + listItem.item.name)
+          matchedPantry = true
+          let id = pantryItem.id
+          let qty = pantryItem.qty + listItem.qty
 
+          this.props.updatePantryItemMutation({
+            variables: {
+              id,
+              qty
+            },
+            update: (store, { data: { updatePantryItem } }) => {
+              let update = false
+              let data = store.readQuery({ query: ALL_NON_ZERO_PANTRY_ITEMS_QUERY })
+              data.allPantryItems.forEach((pantryItem) => {
+                // If item is qty=0, it will not be present in the NON_ZERO query
+                if (pantryItem.id === updatePantryItem.id) {
+                  pantryItem.qty = updatePantryItem.qty
+                  update = true
+                }
+              })
+              if (!update) {
+                data.allPantryItems.push(updatePantryItem)
+              }
+              store.writeQuery({
+                query: ALL_NON_ZERO_PANTRY_ITEMS_QUERY,
+                data
+              })
+            }
+          })
+
+        }
+      })
+      // Creating a new Pantry Item if item is not already in PantryItems
+      if (!matchedPantry) {
+        let itemId = listItem.item.id;
+        let qty = listItem.qty;
+        this.props.createPantryItemMutation({
+          variables: {
+            qty,
+            itemId
+          },
+          update: (store, { data: { createPantryItem } }) => {
+            const data = store.readQuery({ query: ALL_NON_ZERO_PANTRY_ITEMS_QUERY })
+            data.allPantryItems.push(createPantryItem);
+            store.writeQuery({
+              query: ALL_NON_ZERO_PANTRY_ITEMS_QUERY,
+              data
+            })
+          }
+        })
+      }
+      // Deleting the shopping list items
+      let id = listItem.id
+      this.props.deleteShoppingList({
+        variables: {
+          id
+        }
+      })
+    })
+    // Manually updating Completed list to an empty array here, instead after each transaction
+    let data = client.readQuery({ query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
+    data.allShoppingLists = []
+    client.writeQuery({
+      query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
+      data
+    })
   }
 
   render() {
@@ -178,5 +255,9 @@ function sortItems(items) {
 export default compose (
   graphql(ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY, { name: 'allCompletedShoppingListItemsQuery' }),
   graphql(ALL_NON_COMPLETED_SHOPPING_LIST_ITEMS_QUERY, { name: 'allNonCompletedShoppingListItemsQuery' }),
-  graphql(UPDATE_SHOPPING_LIST_ITEM_COMPLETENESS, { name: 'updateShoppingListItemComplete' })
+  graphql(UPDATE_SHOPPING_LIST_ITEM_COMPLETENESS, { name: 'updateShoppingListItemComplete' }),
+  graphql(DELETE_SHOPPING_LIST_ITEM, { name: 'deleteShoppingList' }),
+  graphql(CREATE_PANTRY_ITEM_MUTATION, { name: 'createPantryItemMutation' }),
+  graphql(UPDATE_PANTRY_ITEM_MUTATION, { name: 'updatePantryItemMutation' }),
+  graphql(ALL_PANTRY_ITEMS_QUERY, { name: 'allPantryItemsQuery' })
 ) (ShoppingList)
