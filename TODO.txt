@@ -3,12 +3,13 @@ Shopping List
     - Button should remove the items from the completed list and update the pantry inventory. (COMPLETE)
 
 Recipes
-  Updating a recipe it creating a new duplicate instead of updating the record.
+  Updating a recipe is creating a new duplicate instead of updating the record. (COMPLETE)
   Invent a better ingredient selector.
 
 Tech Debt
-  Create ApolloClientProvider as a Singleton for user around the application (COMPLETE)
+  Create ApolloClientProvider as a Singleton for user around the application. (COMPLETE)
   Potentially create a 'service' for the query and mutation method calls.
+  CreatePantryItem and EditPantryItem could become the same page.
 
 Major Features
   User Feedback messages i.e. (Success and Failure messages)
