@@ -2,7 +2,7 @@ import React from 'react';
 import { graphql, compose } from 'react-apollo'
 import { EmptyTableHeaderMessage } from '../util/displayUtils'
 import { ALL_ITEMS_QUERY } from '../graphql/Itemql'
-import { ALL_RECIPES_QUERY, CREATE_RECIPE_MUTATION } from '../graphql/Recipeql'
+import { ALL_RECIPES_QUERY, CREATE_RECIPE_MUTATION, UPDATE_RECIPE_MUTATION } from '../graphql/Recipeql'
 
 class ViewRecipe extends React.Component {
   constructor(props) {
@@ -23,27 +23,48 @@ class ViewRecipe extends React.Component {
   }
 
   _saveRecipeItem = async() => {
+    let id = this.props.recipe.id;
     let name = this.state.nameInput;
     let description = this.state.descriptionInput;
     let instructions = this.state.instructionsInput;
     let ingredients = this.state.ingredientsInput;
 
-    await this.props.createRecipe({
-      variables : {
-        name,
-        description,
-        instructions,
-        ingredients
-      },
-      update: (store, { data: createRecipe }) => {
-        let data = store.readQuery({ query: ALL_RECIPES_QUERY })
-        data.allRecipes.push(createRecipe);
-        store.writeQuery({
-           query: ALL_RECIPES_QUERY,
-           data
-        })
-      }
-    })
+    if (id) {
+      console.log(id)
+      await this.props.updateRecipe({
+        variables : {
+          id,
+          name,
+          description,
+          instructions,
+          ingredients
+        },
+        update: (store, { data: updateRecipe }) => {
+          let data = store.readQuery({ query: ALL_RECIPES_QUERY })
+          store.writeQuery({
+             query: ALL_RECIPES_QUERY,
+             data
+          })
+        }
+      })
+    } else {
+      await this.props.createRecipe({
+        variables : {
+          name,
+          description,
+          instructions,
+          ingredients
+        },
+        update: (store, { data: createRecipe }) => {
+          let data = store.readQuery({ query: ALL_RECIPES_QUERY })
+          data.allRecipes.push(createRecipe);
+          store.writeQuery({
+             query: ALL_RECIPES_QUERY,
+             data
+          })
+        }
+      })
+    }
     this.props.onFinish();
   }
 
@@ -119,5 +140,6 @@ class ViewRecipe extends React.Component {
 
 export default compose (
   graphql( ALL_ITEMS_QUERY, { name: 'allItemsQuery' }),
-  graphql( CREATE_RECIPE_MUTATION, { name: 'createRecipe' })
+  graphql( CREATE_RECIPE_MUTATION, { name: 'createRecipe' }),
+  graphql( UPDATE_RECIPE_MUTATION, { name: 'updateRecipe' })
 )(ViewRecipe)
