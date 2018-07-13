@@ -12,7 +12,7 @@ import {
   CREATE_PANTRY_ITEM_MUTATION,
   UPDATE_PANTRY_ITEM_MUTATION
 } from '../graphql/PantryItemql';
-import { client } from '../index'
+import ApolloClientHandler from './ApolloClientHandler';
 class ShoppingList extends React.Component {
   constructor(props) {
     super(props);
@@ -158,9 +158,9 @@ class ShoppingList extends React.Component {
       })
     })
     // Manually updating Completed list to an empty array here, instead after each transaction
-    let data = client.readQuery({ query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
+   let data = ApolloClientHandler.client.readQuery({ query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY })
     data.allShoppingLists = []
-    client.writeQuery({
+    ApolloClientHandler.client.writeQuery({
       query: ALL_COMPLETED_SHOPPING_LIST_ITEMS_QUERY,
       data
     })

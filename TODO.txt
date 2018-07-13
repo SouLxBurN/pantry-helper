@@ -7,7 +7,7 @@ Recipes
   Invent a better ingredient selector.
 
 Tech Debt
-  Create ApolloClientProvider as a Singleton for user around the application
+  Create ApolloClientProvider as a Singleton for user around the application (COMPLETE)
   Potentially create a 'service' for the query and mutation method calls.
 
 Major Features
